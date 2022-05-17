@@ -2,10 +2,12 @@
 #include "hmathanalysis.h"
 #include "hmathconfig.h"
 #include "hmathconstants.h"
+#include "hmathpolynomial.h"
 
 #include <iostream>
 #include <limits>
-
+#include <string>
+#include <vector>
 
 #if DO_TEST
 
@@ -14,6 +16,10 @@ int main()
 	using namespace std;
 	using namespace hmath;
 
+	int testCount = 0;
+	int errorCount = 0;
+	vector<string> errorMessages;
+	
 	cout << "[HMath] Test Started! ===" << endl;
 
 	cout << "[HMath] Derivative tests on trigonometric functions" << endl;
@@ -47,7 +53,7 @@ int main()
 
 	cout << "[HMath] Derivative tests on exponential functions" << endl;
 	{
-		constexpr float a = Pi;
+		constexpr float a = PI;
 		auto func = [a](HReal value) -> HReal { return exp(a * value); };
 
 		for (int i = 0; i < 100; ++i)
@@ -77,7 +83,13 @@ int main()
 		}
 	}
 
+	Polynomial::DoTest(testCount, errorCount, errorMessages);
+
+	cout << endl;
 	cout << "[HMath] Test Finished! ===" << endl;
+	cout << "[HMath] Test Report" << endl;
+	cout << "[HMath] Errors " << errorCount << endl;
+	cout << endl;
 	
 	return 0;
 }

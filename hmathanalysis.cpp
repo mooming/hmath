@@ -5,6 +5,15 @@
 
 namespace hmath
 {
+	TFunc1 Composite(TFunc1 func1, TFunc1 func2)
+	{
+		return [func1, func2](HReal value)
+		{
+			auto y1 = func1(value);
+			return func2(y1);
+		};
+	}
+
 	HReal derivativeFromBelow(TFunc1 func, HReal x, HReal epsilon)
 	{
 		assert(epsilon > 0);
@@ -29,7 +38,7 @@ namespace hmath
 	{
 		assert(epsilon > 0);
 
-		const auto halfEpsilon = epsilon * Half;
+		const auto halfEpsilon = epsilon * HALF;
 		auto y = func(x + halfEpsilon) - func(x - halfEpsilon);
 		y = y / epsilon;
 
@@ -40,11 +49,8 @@ namespace hmath
 	{
 		assert(epsilon > 0);
 
-		const auto halfEpsilon = epsilon * Half;
-		const auto dy = derivative(func, x, epsilon);
-		const auto dyBelow = derivative(func, (x - halfEpsilon), epsilon);
-		auto ddy = dy - dyBelow;
-		ddy = ddy / epsilon;
+		auto dy = getDerivativeFromBelow(func, epsilon);
+		auto ddy = derivativeFromBelow(dy, x, epsilon);
 
 		return ddy;
 	}
@@ -53,11 +59,8 @@ namespace hmath
 	{
 		assert(epsilon > 0);
 
-		const auto halfEpsilon = epsilon * Half;
-		const auto dyAbove = derivative(func, (x + halfEpsilon), epsilon);
-		const auto dy = derivative(func, x, epsilon);
-		auto ddy = dyAbove - dy;
-		ddy = ddy / epsilon;
+		auto dy = getDerivativeFromAbove(func, epsilon);
+		auto ddy = derivativeFromAbove(dy, x, epsilon);
 
 		return ddy;
 	}
@@ -66,11 +69,8 @@ namespace hmath
 	{
 		assert(epsilon > 0);
 
-		const auto halfEpsilon = epsilon * Half;
-		const auto dyAbove = derivative(func, (x + halfEpsilon), epsilon);
-		const auto dyBelow = derivative(func, (x - halfEpsilon), epsilon);
-		auto ddy = dyAbove - dyBelow;
-		ddy = ddy / epsilon;
+		auto dy = getDerivative(func, epsilon);
+		auto ddy = derivative(dy, x, epsilon);
 
 		return ddy;
 	}
@@ -79,24 +79,24 @@ namespace hmath
 	{
 		assert(epsilon > 0);
 
-		auto derivativeFunc = [func, epsilon](HReal value) -> HReal
+		auto dy = [func, epsilon](HReal value) -> HReal
 		{
 			return derivativeFromBelow(func, value, epsilon);
 		};
 
-		return derivativeFunc;
+		return dy;
 	}
 
-	TFunc1 getDerivativeFromAbove(TFunc1 func, HReal x, HReal epsilon)
+	TFunc1 getDerivativeFromAbove(TFunc1 func, HReal epsilon)
 	{
 		assert(epsilon > 0);
 
-		auto derivativeFunc = [func, epsilon](HReal value) -> HReal
+		auto dy = [func, epsilon](HReal value) -> HReal
 		{
 			return derivativeFromAbove(func, value, epsilon);
 		};
 
-		return derivativeFunc;
+		return dy;
 	}
 
 	TFunc1 getDerivative(TFunc1 func, HReal epsilon)
@@ -155,11 +155,11 @@ namespace hmath
 	HReal getRelativeError(HReal approximateValue, HReal trueValue)
 	{
 		auto diff = abs(approximateValue - trueValue);
-		if (diff < SmallestNumber)
-			return Zero;
+		if (diff < MIN_NUMBER)
+			return ZERO;
 
-		if (abs(trueValue) < SmallNumber)
-			return BiggestNumber;
+		if (abs(trueValue) < SMALL_NUMBER)
+			return MAX_NUMBER;
 
 		return diff / trueValue;
 	}
