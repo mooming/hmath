@@ -51,8 +51,7 @@ namespace hmath
 		void print(HReal value) const;
 
 #if DO_TEST
-		static bool DoTest(int& inOutTestCount,
-			int& outErrorCount, std::vector<std::string>& outErrorMessages);
+		static int DoTest(int& inOutTestCount, std::vector<std::string>& outErrorMessages);
 #endif // DO_TEST
 	};
 }

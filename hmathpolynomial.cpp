@@ -301,7 +301,7 @@ namespace hmath
     }
 
 #if DO_TEST
-	bool Polynomial::DoTest(int& inOutTestCount, int& outErrorCount, std::vector<std::string>& outErrorMessages)
+	int Polynomial::DoTest(int& inOutTestCount, std::vector<std::string>& outErrorMessages)
     {
         using namespace std;
 
@@ -317,7 +317,7 @@ namespace hmath
             {
                 HReal value = p.evaluate(x);
                 HReal trueValue = func(x);
-                HReal error = getError(value, trueValue);
+                HReal error = analysis::getError(value, trueValue);
                 
                 cout << "[Polynomial][TC" << inOutTestCount << "] P(" << x << ") = "
                     << value << " <=> " << trueValue << ", error = " << error << endl;
@@ -345,7 +345,7 @@ namespace hmath
             {
                 HReal value = p3.evaluate(x);
                 HReal trueValue = func(x);
-                HReal error = getError(value, trueValue);
+                HReal error = analysis::getError(value, trueValue);
 
                 cout << "[Polynomial][TC" << inOutTestCount << "] P(" << x << ") = "
                     << value << " <=> " << trueValue << ", error = " << error << endl;
@@ -373,7 +373,7 @@ namespace hmath
             {
                 HReal value = p3.evaluate(x);
                 HReal trueValue = func(x);
-                HReal error = getError(value, trueValue);
+                HReal error = analysis::getError(value, trueValue);
 
                 cout << "[Polynomial][TC" << inOutTestCount << "] P(" << x << ") = "
                     << value << " <=> " << trueValue << ", error = " << error << endl;
@@ -476,10 +476,8 @@ namespace hmath
                     << " doesn't coincide with " <<  answer << endl;
             }
         }
-        
-        outErrorCount += errorCount;
-        
-        return errorCount == 0;
+
+        return errorCount;
     }
 #endif // DO_TEST
 }
