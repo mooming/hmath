@@ -6,8 +6,9 @@
 
 #include <cmath>
 #include <functional>
-#include <vector>
+#include <optional>
 #include <string>
+#include <vector>
 
 
 namespace hmath
@@ -18,7 +19,7 @@ namespace hmath
 		// f:x -> y, where x and y are real numbers.
 		using TFunc1 = std::function<HReal(HReal)>;
 
-		TFunc1 Composite(TFunc1 func1, TFunc1 func2);
+		TFunc1 composite(TFunc1 func1, TFunc1 func2);
 		HReal derivativeFromBelow(TFunc1 func, HReal x, HReal epsilon = EPSILON);
 		HReal derivativeFromAbove(TFunc1 func, HReal x, HReal epsilon = EPSILON);
 		HReal derivative(TFunc1 func, HReal x, HReal epsilon = EPSILON);
@@ -34,6 +35,19 @@ namespace hmath
 		TFunc1 getSecondOrderDerivativeFromBelow(TFunc1 func, HReal epsilon = EPSILON);
 		TFunc1 getSecondOrderDerivativeFromAbove(TFunc1 func, HReal epsilon = EPSILON);
 		TFunc1 getSecondOrderDerivative(TFunc1 func, HReal epsilon = EPSILON);
+
+		namespace solver
+		{
+			struct HRoot final
+			{
+				const HReal value = ZERO;
+				const HReal error = ZERO;
+			};
+
+			std::optional<HRoot> bisectionMethod(int& outPerformanceCount,
+				TFunc1 continuousFunc, HReal start, HReal end,
+				int maxCount = 30, HReal epsilon = SMALL_NUMBER);
+		}
 
 		HReal getError(HReal approximateValue, HReal trueValue);
 		HReal getRelativeError(HReal approximateValue, HReal trueValue);

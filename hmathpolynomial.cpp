@@ -201,7 +201,7 @@ namespace hmath
             tmp.push_back(coeff);
         }
 
-        for (int i = 0; i < numShift; ++i)
+        for (unsigned int i = 0; i < numShift; ++i)
         {
             tmp.push_back(ZERO);
         }
@@ -219,7 +219,7 @@ namespace hmath
         auto newSize = coefficients.size() - numShift;
         tmp.reserve(newSize);
 
-        for (int i = 0; i < newSize; ++i)
+        for (size_t i = 0; i < newSize; ++i)
         {
             tmp.push_back(coefficients[i]);
         }
