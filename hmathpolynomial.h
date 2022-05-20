@@ -37,6 +37,8 @@ namespace hmath
 		friend std::ostream& operator<< (std::ostream& stream, const Polynomial& polynomial);
 
 	public:
+		TFunc1 AsFunction() const;
+
 		TOrder numCoefficients() const;
 		TOrder getOrder() const;
 		HReal getCoefficient(TOrder index) const;

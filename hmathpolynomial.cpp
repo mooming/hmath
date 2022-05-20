@@ -154,6 +154,16 @@ namespace hmath
         }
     }
 
+    TFunc1 Polynomial::AsFunction() const
+    {
+        auto func = [*this](HReal value)
+        {
+            return evaluate(value);
+        };
+
+        return func;
+    }
+
     Polynomial::TOrder Polynomial::numCoefficients() const
     {
         const auto order = static_cast<TOrder>(coefficients.size());

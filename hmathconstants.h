@@ -8,8 +8,9 @@
 namespace hmath
 {
 	// Epsilon for derivative and basic math functions
-	static constexpr HReal EPSILON = 1.0e-6;
 	static constexpr HReal MACHINE_EPSILON = std::numeric_limits<HReal>::epsilon();
+	static constexpr HReal EPSILON = 1.0e-6;
+	static constexpr HReal DIV_EPSILON = MACHINE_EPSILON * 100;
 
 	static constexpr HReal ZERO = 0;
 	static constexpr HReal ONE = 1;

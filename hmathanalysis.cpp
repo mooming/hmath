@@ -153,11 +153,33 @@ TFunc1 getSecondOrderDerivative(TFunc1 func, HReal epsilon)
 namespace solver
 {
 
-std::optional<HRoot> bisectionMethod(int& outPerformanceCount,
+std::optional<HReal> solveLinearEquation(HReal a, HReal b)
+{
+	if (abs(a) < MIN_NUMBER)
+		return std::optional<HReal>();
+
+	return -b / a;
+}
+
+std::optional<HQuadraticRoots> solveQuadraticEquation(HReal a, HReal b, HReal c)
+{
+	HReal d = b * b - (4 * a * c);
+	if (signbit(d))
+		return std::optional<HQuadraticRoots>();
+
+	HReal sqrtD = sqrt(d);
+	HReal factor = HALF / a;
+	HReal root1 = (-b + d) * factor;
+	HReal root2 = (-b - d) * factor;
+
+	return HQuadraticRoots{ root1, root2 };
+}
+
+std::optional<HRoot> bisectionMethod(int& outIterationCount,
 	TFunc1 continuousFunc, HReal start, HReal end,
 	int maxCount, HReal epsilon)
 {
-	outPerformanceCount = 0;
+	outIterationCount = 0;
 
 	HReal sy = continuousFunc(start);
 	HReal ey = continuousFunc(end);
@@ -178,9 +200,9 @@ std::optional<HRoot> bisectionMethod(int& outPerformanceCount,
 
 	HReal deltaRange = end - start;
 	
-	while (!signbit(deltaRange) && abs(deltaRange) > epsilon && outPerformanceCount < maxCount)
+	while (!signbit(deltaRange) && abs(deltaRange) > epsilon && outIterationCount < maxCount)
 	{
-		++outPerformanceCount;
+		++outIterationCount;
 
 		HReal x = start + (deltaRange * HALF);
 		HReal y = continuousFunc(x);
@@ -205,6 +227,93 @@ std::optional<HRoot> bisectionMethod(int& outPerformanceCount,
 
 		deltaRange = end - start;
 	} 
+
+	return std::optional<HRoot>();
+}
+
+std::optional<HRoot> newtonRaphsonMethod(int& outIterationCount,
+	TFunc1 func, TFunc1 derivativeFunc, HReal start,
+	int maxCount, HReal epsilon)
+{
+	outIterationCount = 0;
+
+	auto x = start;
+	auto y = func(x);
+	auto error = abs(y);
+	if (error < epsilon)
+		return HRoot{ x, error };
+
+	while (outIterationCount < maxCount)
+	{
+		++outIterationCount;
+
+		auto dy = derivativeFunc(x);
+		if (abs(dy) < DIV_EPSILON)
+			return std::optional<HRoot>();
+
+		x = x - (y / dy);
+		y = func(x);
+
+		error = abs(y);
+		if (error < epsilon)
+			return HRoot{ x, error };
+	}
+
+	return std::optional<HRoot>();
+}
+
+std::optional<HRoot> newtonRaphsonMethod(int& outIterationCount,
+	TFunc1 differentiableFunc, HReal start,
+	int maxCount, HReal epsilon)
+{
+	return newtonRaphsonMethod(outIterationCount, differentiableFunc,
+		getDerivative(differentiableFunc), start, maxCount, epsilon);
+}
+
+std::optional<HRoot> secantMethod(int& outIterationCount,
+	TFunc1 func, HReal start, HReal start2,
+	int maxCount, HReal epsilon)
+{
+	outIterationCount = 0;
+
+	auto x1 = start;
+	auto x2 = start2;
+	auto y1 = func(x1);
+	auto y2 = func(x2);
+
+	auto error = abs(y1);
+	if (error < epsilon)
+		return HRoot{ x1, error };
+
+	error = abs(y2);
+	if (error < epsilon)
+		return HRoot{ x2, error };
+
+	while (outIterationCount < maxCount)
+	{
+		++outIterationCount;
+
+		auto dx = x2 - x1;
+		if (abs(dx) < DIV_EPSILON)
+			return std::optional<HRoot>();
+		
+		auto dy = (y2 - y1) / dx;
+		if (abs(dy) < DIV_EPSILON)
+			return std::optional<HRoot>();
+
+		auto oldX = x1;
+		auto oldY = y1;
+
+		x1 = x2;
+		y1 = y2;
+
+		x2 = x2 - (y2 / dy);
+		y2 = func(x2);
+
+		error = abs(y2);
+		if (error < epsilon)
+			return HRoot{ x2, error };
+	}
 
 	return std::optional<HRoot>();
 }
@@ -353,32 +462,151 @@ int DoTest(int& inOutTestCount, std::vector<std::string>& outErrorMessages)
 
 		auto func = [](HReal x) -> HReal
 		{
-			return 2 * x + 1;
+			return 2 * (x * x * x) + 1;
 		};
 
-		int perfCount = 0;
-		auto root = solver::bisectionMethod(perfCount, func, -10, 10);
+		int iterationCount = 0;
+		auto root = solver::bisectionMethod(iterationCount, func, -10, 10);
 
 		if (root)
 		{
 			cout << "[Analysis][TC" << inOutTestCount
 				<< "] root = " << root->value << ", error = " << root->error
-				<< ", count = " << perfCount << endl;
+				<< ", count = " << iterationCount << endl;
 
 			auto value = func(root->value);
 			if (abs(func(root->value)) > SMALL_NUMBER)
 			{
-				cout << "[Analysis][TC" << inOutTestCount
-					<< "] f(" << root->value << ") = " << value
+				++errorCount;
+				cerr << "[Analysis][TC" << inOutTestCount
+					<< "][Error] f(" << root->value << ") = " << value
 					<< " has a bigger error than expected " << SMALL_NUMBER << '!' << endl;
 			}
 		}
 		else
 		{
-			cout << "[Analysis][TC" << inOutTestCount
-				<< "] failed to find a root in [-10, 10] with " << perfCount << " try." << endl;
+			++errorCount;
+			cerr << "[Analysis][TC" << inOutTestCount
+				<< "][Error] failed to find a root in [-10, 10] with " << iterationCount << " try." << endl;
 		}
 		
+	}
+
+	{
+		++inOutTestCount;
+
+		cout << endl << "[Analysis][TC" << inOutTestCount
+			<< "] Solver: Newton-Raphson Method" << endl;
+
+		auto func = [](HReal x) -> HReal
+		{
+			return 2 * x * x * x + 1;
+		};
+
+		auto dy = [](HReal x) -> HReal
+		{
+			return 6 * x * x;
+		};
+
+		int iterationCount = 0;
+		auto root = solver::newtonRaphsonMethod(iterationCount, func, dy, -10);
+
+		if (root)
+		{
+			cout << "[Analysis][TC" << inOutTestCount
+				<< "] root = " << root->value << ", error = " << root->error
+				<< ", count = " << iterationCount << endl;
+
+			auto value = func(root->value);
+			if (abs(func(root->value)) > SMALL_NUMBER)
+			{
+				++errorCount;
+				cerr << "[Analysis][TC" << inOutTestCount
+					<< "][Error] f(" << root->value << ") = " << value
+					<< " has a bigger error than expected " << SMALL_NUMBER << '!' << endl;
+			}
+		}
+		else
+		{
+			++errorCount;
+			cerr << "[Analysis][TC" << inOutTestCount
+				<< "][Error] failed to find a root with " << iterationCount << " try." << endl;
+		}
+
+	}
+
+	{
+		++inOutTestCount;
+
+		cout << endl << "[Analysis][TC" << inOutTestCount
+			<< "] Solver: Newton-Raphson Method (2)" << endl;
+
+		auto func = [](HReal x) -> HReal
+		{
+			return 2 * x * x * x + 1;
+		};
+
+		int iterationCount = 0;
+		auto root = solver::newtonRaphsonMethod(iterationCount, func, -10);
+
+		if (root)
+		{
+			cout << "[Analysis][TC" << inOutTestCount
+				<< "] root = " << root->value << ", error = " << root->error
+				<< ", count = " << iterationCount << endl;
+
+			auto value = func(root->value);
+			if (abs(func(root->value)) > SMALL_NUMBER)
+			{
+				++errorCount;
+				cerr << "[Analysis][TC" << inOutTestCount
+					<< "][Error] f(" << root->value << ") = " << value
+					<< " has a bigger error than expected " << SMALL_NUMBER << '!' << endl;
+			}
+		}
+		else
+		{
+			++errorCount;
+			cerr << "[Analysis][TC" << inOutTestCount
+				<< "][Error] failed to find a root with " << iterationCount << " try." << endl;
+		}
+	}
+
+	{
+		++inOutTestCount;
+
+		cout << endl << "[Analysis][TC" << inOutTestCount
+			<< "] Solver: Secant Method" << endl;
+
+		auto func = [](HReal x) -> HReal
+		{
+			return 2 * x * x * x + 1;
+		};
+
+		int iterationCount = 0;
+		auto root = solver::secantMethod(iterationCount, func, -10, -10 + EPSILON);
+
+		if (root)
+		{
+			cout << "[Analysis][TC" << inOutTestCount
+				<< "] root = " << root->value << ", error = " << root->error
+				<< ", count = " << iterationCount << endl;
+
+			auto value = func(root->value);
+			if (abs(func(root->value)) > SMALL_NUMBER)
+			{
+				++errorCount;
+				cerr << "[Analysis][TC" << inOutTestCount
+					<< "][Error] f(" << root->value << ") = " << value
+					<< " has a bigger error than expected " << SMALL_NUMBER << '!' << endl;
+			}
+		}
+		else
+		{
+			++errorCount;
+			cerr << "[Analysis][TC" << inOutTestCount
+				<< "][Error] failed to find a root with " << iterationCount << " try." << endl;
+		}
 	}
 
 	return errorCount;

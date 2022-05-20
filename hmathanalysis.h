@@ -5,7 +5,6 @@
 #include "hmathtypes.h"
 
 #include <cmath>
-#include <functional>
 #include <optional>
 #include <string>
 #include <vector>
@@ -15,10 +14,6 @@ namespace hmath
 {
 	namespace analysis
 	{
-		// Standard function with a single parameter and having the same domain and range.
-		// f:x -> y, where x and y are real numbers.
-		using TFunc1 = std::function<HReal(HReal)>;
-
 		TFunc1 composite(TFunc1 func1, TFunc1 func2);
 		HReal derivativeFromBelow(TFunc1 func, HReal x, HReal epsilon = EPSILON);
 		HReal derivativeFromAbove(TFunc1 func, HReal x, HReal epsilon = EPSILON);
@@ -44,8 +39,39 @@ namespace hmath
 				const HReal error = ZERO;
 			};
 
-			std::optional<HRoot> bisectionMethod(int& outPerformanceCount,
+			struct HQuadraticRoots final
+			{
+				const HReal first = ZERO;
+				const HReal second = ZERO;
+			};
+
+			std::optional<HReal> solveLinearEquation(HReal a, HReal b);
+			std::optional<HQuadraticRoots> solveQuadraticEquation(HReal a, HReal b, HReal c);
+
+			// conditions
+			// The given function should be continous on range [start, end].
+			// The sign of f(start) and f(end) should be different.
+			// If f(start) is positive, then f(end) should be negative.
+			std::optional<HRoot> bisectionMethod(int& outIterationCount,
 				TFunc1 continuousFunc, HReal start, HReal end,
+				int maxCount = 30, HReal epsilon = SMALL_NUMBER);
+
+			// conditions
+			// The given function should be differentiable for every point.
+			// y`(start) should not be zero.
+			std::optional<HRoot> newtonRaphsonMethod(int& outIterationCount,
+				TFunc1 func, TFunc1 derivativeFunc, HReal start,
+				int maxCount = 30, HReal epsilon = SMALL_NUMBER);
+
+			std::optional<HRoot> newtonRaphsonMethod(int& outIterationCount,
+				TFunc1 differentiableFunc, HReal start,
+				int maxCount = 30, HReal epsilon = SMALL_NUMBER);
+
+			// conditions
+			// The given function should be differentiable for every point.
+			// y`(start) should not be zero.
+			std::optional<HRoot> secantMethod(int& outIterationCount,
+				TFunc1 differentiableFunc, HReal start, HReal start2,
 				int maxCount = 30, HReal epsilon = SMALL_NUMBER);
 		}
 
