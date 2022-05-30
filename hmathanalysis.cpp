@@ -1,24 +1,27 @@
 #include "hmathanalysis.h"
 
+#include "hmathbitops.h"
+#include "hmathutil.h"
 #include <cassert>
+#include <cmath>
 #include <iostream>
+#include <sstream>
 
 
 namespace hmath
 {
 namespace analysis
 {
-TFunc1 composite(TFunc1 func1, TFunc1 func2)
-{
-	return [func1, func2](HReal value)
-	{
-		auto y1 = func1(value);
-		return func2(y1);
-	};
-}
 
-HReal derivativeFromBelow(TFunc1 func, HReal x, HReal epsilon)
+HReal derivativeFromBelow(const TFunc1& func, HReal x, HReal epsilon)
 {
+	if (!func)
+	{
+		using namespace std;
+		cerr << "[hmath][analysis][Error] " << __func__ << ": func is null." << endl;
+		return ZERO;
+	}
+
 	assert(epsilon > 0);
 
 	auto y = func(x) - func(x - epsilon);
@@ -27,8 +30,15 @@ HReal derivativeFromBelow(TFunc1 func, HReal x, HReal epsilon)
 	return y;
 }
 
-HReal derivativeFromAbove(TFunc1 func, HReal x, HReal epsilon)
+HReal derivativeFromAbove(const TFunc1& func, HReal x, HReal epsilon)
 {
+	if (!func)
+	{
+		using namespace std;
+		cerr << "[hmath][analysis][Error] " << __func__ << ": func is null." << endl;
+		return ZERO;
+	}
+
 	assert(epsilon > 0);
 
 	auto y = func(x + epsilon) - func(x);
@@ -37,8 +47,15 @@ HReal derivativeFromAbove(TFunc1 func, HReal x, HReal epsilon)
 	return y;
 }
 
-HReal derivative(TFunc1 func, HReal x, HReal epsilon)
+HReal derivative(const TFunc1& func, HReal x, HReal epsilon)
 {
+	if (!func)
+	{
+		using namespace std;
+		cerr << "[hmath][analysis][Error] " << __func__ << ": func is null." << endl;
+		return ZERO;
+	}
+
 	assert(epsilon > 0);
 
 	const auto halfEpsilon = epsilon * HALF;
@@ -48,8 +65,15 @@ HReal derivative(TFunc1 func, HReal x, HReal epsilon)
 	return y;
 }
 
-HReal secondOrderDerivativeFromBelow(TFunc1 func, HReal x, HReal epsilon)
+HReal secondOrderDerivativeFromBelow(const TFunc1& func, HReal x, HReal epsilon)
 {
+	if (!func)
+	{
+		using namespace std;
+		cerr << "[hmath][analysis][Error] " << __func__ << ": func is null." << endl;
+		return ZERO;
+	}
+
 	assert(epsilon > 0);
 
 	auto dy = getDerivativeFromBelow(func, epsilon);
@@ -58,8 +82,15 @@ HReal secondOrderDerivativeFromBelow(TFunc1 func, HReal x, HReal epsilon)
 	return ddy;
 }
 
-HReal secondOrderDerivativeFromAbove(TFunc1 func, HReal x, HReal epsilon)
+HReal secondOrderDerivativeFromAbove(const TFunc1& func, HReal x, HReal epsilon)
 {
+	if (!func)
+	{
+		using namespace std;
+		cerr << "[hmath][analysis][Error] " << __func__ << ": func is null." << endl;
+		return ZERO;
+	}
+
 	assert(epsilon > 0);
 
 	auto dy = getDerivativeFromAbove(func, epsilon);
@@ -68,8 +99,15 @@ HReal secondOrderDerivativeFromAbove(TFunc1 func, HReal x, HReal epsilon)
 	return ddy;
 }
 
-HReal secondOrderDerivative(TFunc1 func, HReal x, HReal epsilon)
+HReal secondOrderDerivative(const TFunc1& func, HReal x, HReal epsilon)
 {
+	if (!func)
+	{
+		using namespace std;
+		cerr << "[hmath][analysis][Error] " << __func__ << ": func is null." << endl;
+		return ZERO;
+	}
+
 	assert(epsilon > 0);
 
 	auto dy = getDerivative(func, epsilon);
@@ -78,8 +116,15 @@ HReal secondOrderDerivative(TFunc1 func, HReal x, HReal epsilon)
 	return ddy;
 }
 
-TFunc1 getDerivativeFromBelow(TFunc1 func, HReal epsilon)
+TFunc1 getDerivativeFromBelow(const TFunc1& func, HReal epsilon)
 {
+	if (!func)
+	{
+		using namespace std;
+		cerr << "[hmath][analysis][Error] " << __func__ << ": func is null." << endl;
+		return TFunc1();
+	}
+
 	assert(epsilon > 0);
 
 	auto dy = [func, epsilon](HReal value) -> HReal
@@ -90,8 +135,15 @@ TFunc1 getDerivativeFromBelow(TFunc1 func, HReal epsilon)
 	return dy;
 }
 
-TFunc1 getDerivativeFromAbove(TFunc1 func, HReal epsilon)
+TFunc1 getDerivativeFromAbove(const TFunc1& func, HReal epsilon)
 {
+	if (!func)
+	{
+		using namespace std;
+		cerr << "[hmath][analysis][Error] " << __func__ << ": func is null." << endl;
+		return TFunc1();
+	}
+
 	assert(epsilon > 0);
 
 	auto dy = [func, epsilon](HReal value) -> HReal
@@ -102,8 +154,15 @@ TFunc1 getDerivativeFromAbove(TFunc1 func, HReal epsilon)
 	return dy;
 }
 
-TFunc1 getDerivative(TFunc1 func, HReal epsilon)
+TFunc1 getDerivative(const TFunc1& func, HReal epsilon)
 {
+	if (!func)
+	{
+		using namespace std;
+		cerr << "[hmath][analysis][Error] " << __func__ << ": func is null." << endl;
+		return TFunc1();
+	}
+
 	assert(epsilon > 0);
 
 	auto derivativeFunc = [func, epsilon](HReal value) -> HReal
@@ -114,8 +173,15 @@ TFunc1 getDerivative(TFunc1 func, HReal epsilon)
 	return derivativeFunc;
 }
 
-TFunc1 getSecondOrderDerivativeFromBelow(TFunc1 func, HReal epsilon)
+TFunc1 getSecondOrderDerivativeFromBelow(const TFunc1& func, HReal epsilon)
 {
+	if (!func)
+	{
+		using namespace std;
+		cerr << "[hmath][analysis][Error] " << __func__ << ": func is null." << endl;
+		return TFunc1();
+	}
+
 	assert(epsilon > 0);
 
 	auto derivativeFunc = [func, epsilon](HReal value) -> HReal
@@ -126,8 +192,15 @@ TFunc1 getSecondOrderDerivativeFromBelow(TFunc1 func, HReal epsilon)
 	return derivativeFunc;
 }
 
-TFunc1 getSecondOrderDerivativeFromAbove(TFunc1 func, HReal epsilon)
+TFunc1 getSecondOrderDerivativeFromAbove(const TFunc1& func, HReal epsilon)
 {
+	if (!func)
+	{
+		using namespace std;
+		cerr << "[hmath][analysis][Error] " << __func__ << ": func is null." << endl;
+		return TFunc1();
+	}
+
 	assert(epsilon > 0);
 
 	auto derivativeFunc = [func, epsilon](HReal value) -> HReal
@@ -138,8 +211,15 @@ TFunc1 getSecondOrderDerivativeFromAbove(TFunc1 func, HReal epsilon)
 	return derivativeFunc;
 }
 
-TFunc1 getSecondOrderDerivative(TFunc1 func, HReal epsilon)
+TFunc1 getSecondOrderDerivative(const TFunc1& func, HReal epsilon)
 {
+	if (!func)
+	{
+		using namespace std;
+		cerr << "[hmath][analysis][Error] " << __func__ << ": func is null." << endl;
+		return TFunc1();
+	}
+
 	assert(epsilon > 0);
 
 	auto derivativeFunc = [func, epsilon](HReal value) -> HReal
@@ -150,35 +230,12 @@ TFunc1 getSecondOrderDerivative(TFunc1 func, HReal epsilon)
 	return derivativeFunc;
 }
 
-namespace solver
-{
-
-std::optional<HReal> solveLinearEquation(HReal a, HReal b)
-{
-	if (abs(a) < MIN_NUMBER)
-		return std::optional<HReal>();
-
-	return -b / a;
-}
-
-std::optional<HQuadraticRoots> solveQuadraticEquation(HReal a, HReal b, HReal c)
-{
-	HReal d = b * b - (4 * a * c);
-	if (signbit(d))
-		return std::optional<HQuadraticRoots>();
-
-	HReal sqrtD = sqrt(d);
-	HReal factor = HALF / a;
-	HReal root1 = (-b + d) * factor;
-	HReal root2 = (-b - d) * factor;
-
-	return HQuadraticRoots{ root1, root2 };
-}
-
 std::optional<HRoot> bisectionMethod(int& outIterationCount,
-	TFunc1 continuousFunc, HReal start, HReal end,
+	const TFunc1& continuousFunc, HReal start, HReal end,
 	int maxCount, HReal epsilon)
 {
+	using namespace bitops;
+
 	outIterationCount = 0;
 
 	HReal sy = continuousFunc(start);
@@ -192,15 +249,15 @@ std::optional<HRoot> bisectionMethod(int& outIterationCount,
 	if (error < epsilon)
 		return HRoot{ end, error };
 
-	bool bSyNegative = signbit(sy);
-	bool bEyNegative = signbit(ey);
+	bool bSyNegative = isNegative(sy);
+	bool bEyNegative = isNegative(ey);
 
-	if (signbit(sy) == signbit(ey))
+	if (isNegative(sy) == isNegative(ey))
 		return std::optional<HRoot>();
 
 	HReal deltaRange = end - start;
 	
-	while (!signbit(deltaRange) && abs(deltaRange) > epsilon && outIterationCount < maxCount)
+	while (!isNegative(deltaRange) && abs(deltaRange) > epsilon && outIterationCount < maxCount)
 	{
 		++outIterationCount;
 
@@ -211,7 +268,7 @@ std::optional<HRoot> bisectionMethod(int& outIterationCount,
 		if (error < epsilon)
 			return HRoot{ x, error };
 
-		bool bYNegative = signbit(y);
+		bool bYNegative = isNegative(y);
 		if (bSyNegative != bYNegative)
 		{
 			end = x;
@@ -232,7 +289,7 @@ std::optional<HRoot> bisectionMethod(int& outIterationCount,
 }
 
 std::optional<HRoot> newtonRaphsonMethod(int& outIterationCount,
-	TFunc1 func, TFunc1 derivativeFunc, HReal start,
+	const TFunc1& func, const TFunc1& derivativeFunc, HReal start,
 	int maxCount, HReal epsilon)
 {
 	outIterationCount = 0;
@@ -263,7 +320,7 @@ std::optional<HRoot> newtonRaphsonMethod(int& outIterationCount,
 }
 
 std::optional<HRoot> newtonRaphsonMethod(int& outIterationCount,
-	TFunc1 differentiableFunc, HReal start,
+	const TFunc1& differentiableFunc, HReal start,
 	int maxCount, HReal epsilon)
 {
 	return newtonRaphsonMethod(outIterationCount, differentiableFunc,
@@ -271,7 +328,7 @@ std::optional<HRoot> newtonRaphsonMethod(int& outIterationCount,
 }
 
 std::optional<HRoot> secantMethod(int& outIterationCount,
-	TFunc1 func, HReal start, HReal start2,
+	const TFunc1& func, HReal start, HReal start2,
 	int maxCount, HReal epsilon)
 {
 	outIterationCount = 0;
@@ -317,8 +374,6 @@ std::optional<HRoot> secantMethod(int& outIterationCount,
 
 	return std::optional<HRoot>();
 }
-
-} // namespace solver
 		
 HReal getError(HReal approximateValue, HReal trueValue)
 {
@@ -344,63 +399,93 @@ int DoTest(int& inOutTestCount, std::vector<std::string>& outErrorMessages)
 
 	int errorCount = 0;
 
-	{
-		++inOutTestCount;
+	constexpr HReal MAX_ERROR = EPSILON;
 
-		cout << endl << "[Analysis][TC" << inOutTestCount
+	{
+		cout << endl << "[Analysis][TC" << ++inOutTestCount
 			<< "] Derivative tests on trigonometric functions" << endl;
 
-		auto func = [](HReal value) -> HReal { return sin(value); };
-
-		for (int i = 0; i <= 360; i += 30)
+		auto func = [](HReal value) -> HReal
 		{
-			const HReal radians = degreesToRadians(i);
+			return sin(value);
+		};
 
-			cout << "[Analysis][TC" << inOutTestCount
-				<< "] Sin(" << i << ") = " << func(radians) << endl;
+		auto testFunc = [func](HReal value) -> HReal
+		{
+			return derivative(func, value);
+		};
 
-			HReal value = derivative(func, radians);
-			HReal trueValue = cos(radians);
-			HReal errorValue = getError(value, trueValue) * 0.5;
+		auto trueFunc = [](HReal value) -> HReal
+		{
+			return cos(value);
+		};
 
-			cout << "[Analysis][TC" << inOutTestCount
-				<< "] Sin`(" << i << ") = " << derivativeFromBelow(func, radians)
-				<< ", " << derivativeFromAbove(func, radians) << ", " << value
-				<< ", true value = " << trueValue
-				<< ", error = " << errorValue << endl;
+		auto error = util::compare(testFunc, trueFunc,
+			-TWO_PI, TWO_PI, TWO_PI * 0.001);
 
-			if (abs(errorValue) > SMALL_NUMBER)
-			{
-				++errorCount;
-				cerr << "[Analysis][TC" << inOutTestCount
-					<< "][Error] " << errorValue << " is huge than expect "
-					<< SMALL_NUMBER << endl << endl;
-			}
+		cout << "[Analysis][TC" << inOutTestCount
+			<< "] Test the derivative of Sin: error = " << error << endl;
 
-			value = secondOrderDerivative(func, radians);
-			trueValue = -sin(radians);
+		if (error > MAX_ERROR)
+		{
+			++errorCount;
 
-			// Range is [-1, 1]. Hence rational error is absolute error / 2.
-			errorValue = getError(value, trueValue) * 0.5;
+			ostringstream msg;
+			msg << "[Analysis][TC" << inOutTestCount
+				<< "][Error] " << __LINE__ << ": "
+				<< error << " is huge than expect "
+				<< SMALL_NUMBER << endl << endl;
 
-			cout << "[Analysis][TC" << inOutTestCount
-				<< "] Sin``(" << i << ") = " << value
-				<< ", true value = " << trueValue
-				<< ", error = " << errorValue << endl;
+			const auto errorMsg = msg.view();
+			cerr << errorMsg;
 
-			if (abs(errorValue) > SMALL_NUMBER)
-			{
-				++errorCount;
-				cerr << "[Analysis][TC" << inOutTestCount
-					<< "][Error] " << errorValue << " is huge than expect "
-					<< SMALL_NUMBER << endl << endl;
-			}
+			outErrorMessages.emplace_back(errorMsg);
 		}
 	}
 
 	{
-		constexpr HReal maxError = 1e-3;
+		cout << endl << "[Analysis][TC" << ++inOutTestCount
+			<< "] Derivative tests on trigonometric functions" << endl;
 
+		auto func = [](HReal value) -> HReal
+		{
+			return sin(value);
+		};
+
+		auto testFunc = [func](HReal value) -> HReal
+		{
+			return secondOrderDerivative(func, value);
+		};
+
+		auto trueFunc = [](HReal value) -> HReal
+		{
+			return -sin(value);
+		};
+
+		auto error = util::compare(testFunc, trueFunc,
+			-TWO_PI, TWO_PI, TWO_PI / 360);
+
+		cout << "[Analysis][TC" << inOutTestCount
+			<< "] Test the 2nd. order derivative of Sin: error = " << error << endl;
+
+		if (error > MAX_ERROR)
+		{
+			++errorCount;
+
+			ostringstream msg;
+			msg << "[Analysis][TC" << inOutTestCount
+				<< "][Error] " << __LINE__ << ": "
+				<< error << " is huge than expect "
+				<< SMALL_NUMBER << endl << endl;
+
+			const auto errorMsg = msg.view();
+			cerr << errorMsg;
+
+			outErrorMessages.emplace_back(errorMsg);
+		}
+	}
+
+	{
 		++inOutTestCount;
 
 		cout << endl << "[Analysis][TC" << inOutTestCount
@@ -425,12 +510,20 @@ int DoTest(int& inOutTestCount, std::vector<std::string>& outErrorMessages)
 				<< ", true value = " << trueValue
 				<< ", error = " << errorValue << endl;
 					
-			if (abs(errorValue) > maxError)
+			if (abs(errorValue) > MAX_ERROR)
 			{
 				++errorCount;
-				cerr << "[Analysis][TC" << inOutTestCount
-					<< "][Error] " << errorValue << " is huge than expect "
-					<< maxError << endl << endl;
+
+				ostringstream msg;
+				msg << "[Analysis][TC" << inOutTestCount
+					<< "][Error] " << __LINE__ << ": "
+					<< errorValue << " is huge than expect "
+					<< MAX_ERROR << endl << endl;
+
+				const auto errorMsg = msg.view();
+				cerr << errorMsg;
+
+				outErrorMessages.emplace_back(errorMsg);
 			}
 
 			auto derivativeFunc = getDerivative(func);
@@ -444,12 +537,21 @@ int DoTest(int& inOutTestCount, std::vector<std::string>& outErrorMessages)
 				<< ", true value = " << trueValue
 				<< ", error = " << errorValue << endl;
 
-			if (abs(errorValue) > maxError)
+			if (abs(errorValue) > MAX_ERROR)
 			{
 				++errorCount;
-				cerr << "[Analysis][TC" << inOutTestCount
-					<< "][Error] " << errorValue << " is huge than expect "
-					<< maxError << endl << endl;
+
+				ostringstream msg;
+
+				msg << "[Analysis][TC" << inOutTestCount
+					<< "][Error] " << __LINE__ << ": "
+					<< errorValue << " is huge than expect "
+					<< MAX_ERROR << endl << endl;
+
+				const auto errorMsg = msg.view();
+				cerr << errorMsg;
+
+				outErrorMessages.emplace_back(errorMsg);
 			}
 		}
 	}
@@ -466,7 +568,7 @@ int DoTest(int& inOutTestCount, std::vector<std::string>& outErrorMessages)
 		};
 
 		int iterationCount = 0;
-		auto root = solver::bisectionMethod(iterationCount, func, -10, 10);
+		auto root = bisectionMethod(iterationCount, func, -10, 10);
 
 		if (root)
 		{
@@ -478,16 +580,33 @@ int DoTest(int& inOutTestCount, std::vector<std::string>& outErrorMessages)
 			if (abs(func(root->value)) > SMALL_NUMBER)
 			{
 				++errorCount;
-				cerr << "[Analysis][TC" << inOutTestCount
-					<< "][Error] f(" << root->value << ") = " << value
+
+				ostringstream msg;
+				msg << "[Analysis][TC" << inOutTestCount
+					<< "][Error] " << __LINE__
+					<< ": f(" << root->value << ") = " << value
 					<< " has a bigger error than expected " << SMALL_NUMBER << '!' << endl;
+
+				const auto errorMsg = msg.view();
+				cerr << errorMsg;
+
+				outErrorMessages.emplace_back(errorMsg);
 			}
 		}
 		else
 		{
 			++errorCount;
-			cerr << "[Analysis][TC" << inOutTestCount
-				<< "][Error] failed to find a root in [-10, 10] with " << iterationCount << " try." << endl;
+
+			ostringstream msg;
+			msg << "[Analysis][TC" << inOutTestCount
+				<< "][Error] " << __LINE__
+				<< ": failed to find a root in [-10, 10] with "
+				<< iterationCount << " try." << endl;
+
+			const auto errorMsg = msg.view();
+			cerr << errorMsg;
+
+			outErrorMessages.emplace_back(errorMsg);
 		}
 		
 	}
@@ -509,7 +628,7 @@ int DoTest(int& inOutTestCount, std::vector<std::string>& outErrorMessages)
 		};
 
 		int iterationCount = 0;
-		auto root = solver::newtonRaphsonMethod(iterationCount, func, dy, -10);
+		auto root = newtonRaphsonMethod(iterationCount, func, dy, -10);
 
 		if (root)
 		{
@@ -521,16 +640,34 @@ int DoTest(int& inOutTestCount, std::vector<std::string>& outErrorMessages)
 			if (abs(func(root->value)) > SMALL_NUMBER)
 			{
 				++errorCount;
-				cerr << "[Analysis][TC" << inOutTestCount
-					<< "][Error] f(" << root->value << ") = " << value
-					<< " has a bigger error than expected " << SMALL_NUMBER << '!' << endl;
+
+				ostringstream msg;
+				msg << "[Analysis][TC" << inOutTestCount
+					<< "][Error] " << __LINE__
+					<< ": f(" << root->value << ") = " << value
+					<< " has a bigger error than expected "
+					<< SMALL_NUMBER << '!' << endl;
+
+				const auto errorMsg = msg.view();
+				cerr << errorMsg;
+
+				outErrorMessages.emplace_back(errorMsg);
 			}
 		}
 		else
 		{
 			++errorCount;
-			cerr << "[Analysis][TC" << inOutTestCount
-				<< "][Error] failed to find a root with " << iterationCount << " try." << endl;
+
+			ostringstream msg;
+			msg << "[Analysis][TC" << inOutTestCount
+				<< "][Error] " << __LINE__
+				<< ": failed to find a root with "
+				<< iterationCount << " try." << endl;
+
+			const auto errorMsg = msg.view();
+			cerr << errorMsg;
+
+			outErrorMessages.emplace_back(errorMsg);
 		}
 
 	}
@@ -547,7 +684,7 @@ int DoTest(int& inOutTestCount, std::vector<std::string>& outErrorMessages)
 		};
 
 		int iterationCount = 0;
-		auto root = solver::newtonRaphsonMethod(iterationCount, func, -10);
+		auto root = newtonRaphsonMethod(iterationCount, func, -10);
 
 		if (root)
 		{
@@ -559,16 +696,32 @@ int DoTest(int& inOutTestCount, std::vector<std::string>& outErrorMessages)
 			if (abs(func(root->value)) > SMALL_NUMBER)
 			{
 				++errorCount;
-				cerr << "[Analysis][TC" << inOutTestCount
-					<< "][Error] f(" << root->value << ") = " << value
+
+				ostringstream msg;
+				msg << "[Analysis][TC" << inOutTestCount
+					<< "][Error] " << __LINE__ << ": f(" << root->value << ") = " << value
 					<< " has a bigger error than expected " << SMALL_NUMBER << '!' << endl;
+
+				const auto errorMsg = msg.view();
+				cerr << errorMsg;
+
+				outErrorMessages.emplace_back(errorMsg);
 			}
 		}
 		else
 		{
 			++errorCount;
-			cerr << "[Analysis][TC" << inOutTestCount
-				<< "][Error] failed to find a root with " << iterationCount << " try." << endl;
+
+			ostringstream msg;
+			msg << "[Analysis][TC" << inOutTestCount
+				<< "][Error] " << __LINE__
+				<< ": failed to find a root with "
+				<< iterationCount << " try." << endl;
+
+			const auto errorMsg = msg.view();
+			cerr << errorMsg;
+
+			outErrorMessages.emplace_back(errorMsg);
 		}
 	}
 
@@ -584,7 +737,7 @@ int DoTest(int& inOutTestCount, std::vector<std::string>& outErrorMessages)
 		};
 
 		int iterationCount = 0;
-		auto root = solver::secantMethod(iterationCount, func, -10, -10 + EPSILON);
+		auto root = secantMethod(iterationCount, func, -10, -10 + EPSILON);
 
 		if (root)
 		{
@@ -596,16 +749,33 @@ int DoTest(int& inOutTestCount, std::vector<std::string>& outErrorMessages)
 			if (abs(func(root->value)) > SMALL_NUMBER)
 			{
 				++errorCount;
-				cerr << "[Analysis][TC" << inOutTestCount
-					<< "][Error] f(" << root->value << ") = " << value
+
+				ostringstream msg;
+				msg << "[Analysis][TC" << inOutTestCount
+					<< "][Error] " << __LINE__
+					<< ": f(" << root->value << ") = " << value
 					<< " has a bigger error than expected " << SMALL_NUMBER << '!' << endl;
+
+				const auto errorMsg = msg.view();
+				cerr << errorMsg;
+
+				outErrorMessages.emplace_back(errorMsg);
 			}
 		}
 		else
 		{
 			++errorCount;
-			cerr << "[Analysis][TC" << inOutTestCount
-				<< "][Error] failed to find a root with " << iterationCount << " try." << endl;
+
+			ostringstream msg;
+			msg << "[Analysis][TC" << inOutTestCount
+				<< "][Error] " << __LINE__
+				<< ": failed to find a root with "
+				<< iterationCount << " try." << endl;
+
+			const auto errorMsg = msg.view();
+			cerr << errorMsg;
+
+			outErrorMessages.emplace_back(errorMsg);
 		}
 	}
 

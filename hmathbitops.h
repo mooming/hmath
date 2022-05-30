@@ -3,16 +3,15 @@
 #include "hmathconfig.h"
 #include "hmathtypes.h"
 
-#include <iostream>
 #include <string>
 #include <vector>
 
 
 namespace hmath
 {
+
 namespace bitops
 {
-
 template <typename T>
 typename std::enable_if<std::is_integral<T>::value, std::string>::type getBitsStrings(T value)
 {
@@ -51,9 +50,20 @@ float abs(float value);
 double abs(double value);
 long double abs(long double value);
 
+template <typename T>
+typename std::enable_if<std::is_integral<T>::value, bool>::type isNegative(T value)
+{
+	return true;
+}
+
+bool isNegative(float value);
+bool isNegative(double value);
+bool isNegative(long double value);
+
 #if DO_TEST
 int DoTest(int& inOutTestCount, std::vector<std::string>& outErrorMessages);
 #endif // DO_TEST
 
 } // bitops
+
 } // hmath

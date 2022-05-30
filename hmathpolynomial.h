@@ -23,6 +23,7 @@ namespace hmath
 		Polynomial(std::initializer_list<HReal> inCoefficients);
 		explicit Polynomial(const std::vector<HReal>& inCoefficients);
 		explicit Polynomial(std::vector<HReal>&& inCoefficients);
+		explicit Polynomial(TFunc1 smoothFunc, HReal point, int depth = 5, HReal epsilon = EPSILON);
 		~Polynomial() = default;
 
 		Polynomial operator+ (const Polynomial& rhs) const;

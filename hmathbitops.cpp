@@ -1,11 +1,14 @@
 #include "hmathbitops.h"
 
+#include <cmath>
+#include <iostream>
+#include <sstream>
+
 
 namespace hmath
 {
 namespace bitops
 {
-
 std::string getBitsStrings(float value)
 {
 	using FloatType = decltype(value);
@@ -126,6 +129,51 @@ long double abs(long double value)
 	return reinterpret_cast<FloatType&>(bitValues);
 }
 
+bool isNegative(float value)
+{
+	using FloatType = decltype(value);
+	using UintType = uint32_t;
+
+	static_assert(sizeof(FloatType) == sizeof(UintType));
+
+	constexpr int numBits = sizeof(FloatType) * CHAR_BIT;
+	constexpr int shift = numBits - 1;
+	constexpr UintType mask = static_cast<UintType>(1) << shift;
+	UintType bitValues = reinterpret_cast<UintType&>(value) & mask;
+
+	return (bitValues & mask) != 0;
+}
+
+bool isNegative(double value)
+{
+	using FloatType = decltype(value);
+	using UintType = uint64_t;
+
+	static_assert(sizeof(FloatType) == sizeof(UintType));
+
+	constexpr int numBits = sizeof(FloatType) * CHAR_BIT;
+	constexpr int shift = numBits - 1;
+	constexpr UintType mask = static_cast<UintType>(1) << shift;
+	UintType bitValues = reinterpret_cast<UintType&>(value) & mask;
+
+	return (bitValues & mask) != 0;
+}
+
+bool isNegative(long double value)
+{
+	using FloatType = decltype(value);
+	using UintType = uint64_t;
+
+	static_assert(sizeof(FloatType) == sizeof(UintType));
+
+	constexpr int numBits = sizeof(FloatType) * CHAR_BIT;
+	constexpr int shift = numBits - 1;
+	constexpr UintType mask = static_cast<UintType>(1) << shift;
+	UintType bitValues = reinterpret_cast<UintType&>(value) & mask;
+
+	return (bitValues & mask) != 0;
+}
+
 #if DO_TEST
 int DoTest(int& inOutTestCount, std::vector<std::string>& outErrorMessages)
 {
@@ -185,9 +233,16 @@ int DoTest(int& inOutTestCount, std::vector<std::string>& outErrorMessages)
 			cout << "[bitops][TC" << ++inOutTestCount << "] absolute value of " << value << " = " << absValue << endl;
 			if (absValue != trueValue)
 			{
-				cout << "[bitops][TC" << ++inOutTestCount << "][Error] Incorrect absolute value "
-					<< absValue << ", " << trueValue << " is expected." << endl;
 				++errorCount;
+
+				ostringstream msg;
+				msg << "[bitops][TC" << ++inOutTestCount << "][Error] Incorrect absolute value "
+					<< absValue << ", " << trueValue << " is expected." << endl;
+
+				const auto errorMsg = msg.view();
+				cerr << errorMsg;
+
+				outErrorMessages.emplace_back(errorMsg);
 			}
 		}
 	
@@ -199,9 +254,17 @@ int DoTest(int& inOutTestCount, std::vector<std::string>& outErrorMessages)
 			cout << "[bitops][TC" << ++inOutTestCount << "] absolute value of " << value << " = " << absValue << endl;
 			if (absValue != trueValue)
 			{
-				cout << "[bitops][TC" << ++inOutTestCount << "][Error] Incorrect absolute value "
-					<< absValue << ", " << trueValue << " is expected." << endl;
 				++errorCount;
+
+				ostringstream msg;
+				msg << "[bitops][TC" << ++inOutTestCount
+					<< "][Error] Incorrect absolute value "
+					<< absValue << ", " << trueValue << " is expected." << endl;
+				
+				const auto errorMsg = msg.view();
+				cerr << errorMsg;
+
+				outErrorMessages.emplace_back(errorMsg);
 			}
 		}
 
@@ -213,9 +276,17 @@ int DoTest(int& inOutTestCount, std::vector<std::string>& outErrorMessages)
 			cout << "[bitops][TC" << ++inOutTestCount << "] absolute value of " << value << " = " << absValue << endl;
 			if (absValue != trueValue)
 			{
-				cout << "[bitops][TC" << ++inOutTestCount << "][Error] Incorrect absolute value "
-					<< absValue << ", " << trueValue << " is expected." << endl;
 				++errorCount;
+
+				ostringstream msg;
+				msg << "[bitops][TC" << ++inOutTestCount
+					<< "][Error] Incorrect absolute value "
+					<< absValue << ", " << trueValue << " is expected." << endl;
+
+				const auto errorMsg = msg.view();
+				cerr << errorMsg;
+
+				outErrorMessages.emplace_back(errorMsg);
 			}
 		}
 
@@ -227,15 +298,154 @@ int DoTest(int& inOutTestCount, std::vector<std::string>& outErrorMessages)
 			cout << "[bitops][TC" << ++inOutTestCount << "] absolute value of " << value << " = " << absValue << endl;
 			if (absValue != trueValue)
 			{
-				cout << "[bitops][TC" << ++inOutTestCount << "][Error] Incorrect absolute value "
-					<< absValue << ", " << trueValue << " is expected." << endl;
 				++errorCount;
+
+				ostringstream msg;
+				msg << "[bitops][TC" << ++inOutTestCount << "][Error] Incorrect absolute value "
+					<< absValue << ", " << trueValue << " is expected." << endl;
+
+				const auto errorMsg = msg.view();
+				cerr << errorMsg;
+
+				outErrorMessages.emplace_back(errorMsg);
+			}
+		}
+
+		{
+			const float input = 1.0f;
+			const bool value = isNegative(input);
+			const bool trueValue = signbit(input);
+
+			cout << "[bitops][TC" << ++inOutTestCount << "] Is Negative (" << input << ") = " << value << endl;
+
+			if (value != trueValue)
+			{
+				++errorCount;
+
+				ostringstream msg;
+				msg << "[bitops][TC" << ++inOutTestCount << "][Error] failed to check isNegative "
+					<< trueValue << " is expected." << endl;
+
+				const auto errorMsg = msg.view();
+				cerr << errorMsg;
+
+				outErrorMessages.emplace_back(errorMsg);
+			}
+		}
+
+		{
+			const float input = -1.0f;
+			const bool value = isNegative(input);
+			const bool trueValue = signbit(input);
+
+			cout << "[bitops][TC" << ++inOutTestCount << "] Is Negative (" << input << ") = " << value << endl;
+
+			if (value != trueValue)
+			{
+				++errorCount;
+
+				ostringstream msg;
+				msg << "[bitops][TC" << ++inOutTestCount << "][Error] failed to check isNegative "
+					<< trueValue << " is expected." << endl;
+				
+				const auto errorMsg = msg.view();
+				cerr << errorMsg;
+
+				outErrorMessages.emplace_back(errorMsg);
+			}
+		}
+
+		{
+			const double input = 1.0f;
+			const bool value = isNegative(input);
+			const bool trueValue = signbit(input);
+
+			cout << "[bitops][TC" << ++inOutTestCount << "] Is Negative (" << input << ") = " << value << endl;
+
+			if (value != trueValue)
+			{
+				++errorCount;
+
+				ostringstream msg;
+				msg << "[bitops][TC" << ++inOutTestCount << "][Error] failed to check isNegative "
+					<< trueValue << " is expected." << endl;
+
+				const auto errorMsg = msg.view();
+				cerr << errorMsg;
+
+				outErrorMessages.emplace_back(errorMsg);
+			}
+		}
+
+		{
+			const double input = -1.0f;
+			const bool value = isNegative(input);
+			const bool trueValue = signbit(input);
+
+			cout << "[bitops][TC" << ++inOutTestCount << "] Is Negative (" << input << ") = " << value << endl;
+
+			if (value != trueValue)
+			{
+				++errorCount;
+				ostringstream msg;
+				msg << "[bitops][TC" << ++inOutTestCount << "][Error] failed to check isNegative "
+					<< trueValue << " is expected." << endl;
+
+				const auto errorMsg = msg.view();
+				cerr << errorMsg;
+
+				outErrorMessages.emplace_back(errorMsg);
+			}
+		}
+
+		{
+			const long double input = 1.0f;
+			const bool value = isNegative(input);
+			const bool trueValue = signbit(input);
+
+			cout << "[bitops][TC" << ++inOutTestCount << "] Is Negative (" << input << ") = " << value << endl;
+
+			if (value != trueValue)
+			{
+				++errorCount;
+				ostringstream msg;
+				msg << "[bitops][TC" << ++inOutTestCount << "][Error] failed to check isNegative "
+					<< trueValue << " is expected." << endl;
+
+				const auto errorMsg = msg.view();
+				cerr << errorMsg;
+
+				outErrorMessages.emplace_back(errorMsg);
+			}
+		}
+
+		{
+			const long double input = -1.0f;
+			const bool value = isNegative(input);
+			const bool trueValue = signbit(input);
+
+			cout << "[bitops][TC" << ++inOutTestCount << "] Is Negative (" << input << ") = " << value << endl;
+
+			if (value != trueValue)
+			{
+				++errorCount;
+
+				ostringstream msg;
+				msg << "[bitops][TC" << ++inOutTestCount << "][Error] failed to check isNegative "
+					<< trueValue << " is expected." << endl;
+
+				const auto errorMsg = msg.view();
+				cerr << errorMsg;
+
+				outErrorMessages.emplace_back(errorMsg);
 			}
 		}
 	}
 	
 	return errorCount;
 }
+
 #endif // DO_TEST
 } // bitops
+
 } // hmath

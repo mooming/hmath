@@ -5,8 +5,10 @@
 #include <cstdint>
 #include <functional>
 
+
 namespace hmath
 {
+
 #if USE_HIGH_PRECISION
 	using HReal = double;
 #else // USE_HIGH_PRECIOSION
@@ -16,4 +18,14 @@ namespace hmath
 	// Standard function with a single parameter and having the same domain and range.
 	// f:x -> y, where x and y are real numbers.
 	using TFunc1 = std::function<HReal(HReal)>;
-}
+
+	struct HRoot final
+	{
+		const HReal value;
+		const HReal error;
+
+		HRoot();
+		HRoot(HReal value, HReal error);
+		~HRoot() = default;
+	};
+} // hmath

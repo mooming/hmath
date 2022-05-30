@@ -1,10 +1,12 @@
 #include "hmathpolynomial.h"
 
 #include "hmathanalysis.h"
+#include "hmathutil.h"
 
 #include <algorithm>
 #include <cassert>
 #include <iostream>
+#include <sstream>
 
 
 namespace hmath
@@ -22,6 +24,20 @@ namespace hmath
 	Polynomial::Polynomial(std::vector<HReal>&& inCoefficients)
         : coefficients(std::move(inCoefficients))
     {
+    }
+
+    Polynomial::Polynomial(TFunc1 smoothFunc, HReal point, int depth, HReal epsilon)
+    {
+        // Taylor Series at the given point
+        auto y = smoothFunc;
+        auto dy = analysis::getDerivative(y, epsilon);
+
+        coefficients.reserve(depth);
+        
+        for (int i = 0; i < depth; ++i)
+        {
+            
+        }
     }
 
     Polynomial Polynomial::operator+ (const Polynomial& rhs) const
@@ -323,21 +339,22 @@ namespace hmath
             Polynomial p({1, 2, -3, 1});
             p.print();
 
-            for (HReal x = MINUS_ONE; x < ONE; x += ONE_TENTH)
+            auto error = util::compare(p.AsFunction(), func, -10, 10, 0.01);
+            cout << "[Polynomial][TC" << inOutTestCount
+                << "] P value check: PASS, error = " << error << endl;
+
+            if (error > EPSILON)
             {
-                HReal value = p.evaluate(x);
-                HReal trueValue = func(x);
-                HReal error = analysis::getError(value, trueValue);
-                
-                cout << "[Polynomial][TC" << inOutTestCount << "] P(" << x << ") = "
-                    << value << " <=> " << trueValue << ", error = " << error << endl;
-            
-                if (error > SMALL_NUMBER)
-                {
-                    ++errorCount;
-                    cerr << "[Polynomial][TC" << inOutTestCount << "][Error] error " << error
-                        << " is bigger than expected " << SMALL_NUMBER << endl;
-                }
+                ++errorCount;
+
+                ostringstream msg;
+                msg << "[Polynomial][TC" << inOutTestCount << "][Error] error " << error
+                    << " is bigger than expected " << SMALL_NUMBER << endl;
+
+                auto errorMsg = msg.view();
+                cerr << errorMsg;
+
+                outErrorMessages.emplace_back(errorMsg);
             }
         }
 
@@ -351,21 +368,22 @@ namespace hmath
 
             p3.print();
 
-            for (HReal x = MINUS_ONE; x < ONE; x += ONE_TENTH)
+            auto error = util::compare(p3.AsFunction(), func, -10, 10, 0.01);
+            cout << "[Polynomial][TC" << inOutTestCount
+                << "] P value check: PASS, error = " << error << endl;
+
+            if (error > EPSILON)
             {
-                HReal value = p3.evaluate(x);
-                HReal trueValue = func(x);
-                HReal error = analysis::getError(value, trueValue);
+                ++errorCount;
 
-                cout << "[Polynomial][TC" << inOutTestCount << "] P(" << x << ") = "
-                    << value << " <=> " << trueValue << ", error = " << error << endl;
+                ostringstream msg;
+                msg << "[Polynomial][TC" << inOutTestCount << "][Error] error " << error
+                    << " is bigger than expected " << SMALL_NUMBER << endl;
 
-                if (error > SMALL_NUMBER)
-                {
-                    ++errorCount;
-                    cerr << "[Polynomial][TC" << inOutTestCount << "][Error] error " << error
-                        << " is bigger than expected " << SMALL_NUMBER << endl;
-                }
+                auto errorMsg = msg.view();
+                cerr << errorMsg;
+
+                outErrorMessages.emplace_back(errorMsg);
             }
         }
 
@@ -379,21 +397,22 @@ namespace hmath
 
             p3.print();
 
-            for (HReal x = MINUS_ONE; x < ONE; x += ONE_TENTH)
+            auto error = util::compare(p3.AsFunction(), func, -10, 10, 0.01);
+            cout << "[Polynomial][TC" << inOutTestCount
+                << "] P value check: PASS, error = " << error << endl;
+
+            if (error > EPSILON)
             {
-                HReal value = p3.evaluate(x);
-                HReal trueValue = func(x);
-                HReal error = analysis::getError(value, trueValue);
+                ++errorCount;
 
-                cout << "[Polynomial][TC" << inOutTestCount << "] P(" << x << ") = "
-                    << value << " <=> " << trueValue << ", error = " << error << endl;
+                ostringstream msg;
+                msg << "[Polynomial][TC" << inOutTestCount << "][Error] error " << error
+                    << " is bigger than expected " << SMALL_NUMBER << endl;
 
-                if (error > SMALL_NUMBER)
-                {
-                    ++errorCount;
-                    cerr << "[Polynomial][TC" << inOutTestCount << "][Error] error " << error
-                        << " is bigger than expected " << SMALL_NUMBER << endl;
-                }
+                auto errorMsg = msg.view();
+                cerr << errorMsg;
+
+                outErrorMessages.emplace_back(errorMsg);
             }
         }
 
@@ -409,8 +428,15 @@ namespace hmath
             if (p3 != answer)
             {
                 ++errorCount;
-                cerr << "[Polynomial][TC" << inOutTestCount << "][Error] error " << p3
+
+                ostringstream msg;
+                msg << "[Polynomial][TC" << inOutTestCount << "][Error] error " << p3
                     << " doesn't coincide with " <<  answer << endl;
+
+                auto errorMsg = msg.view();
+                cerr << errorMsg;
+
+                outErrorMessages.emplace_back(errorMsg);
             }
         }
 
@@ -426,8 +452,15 @@ namespace hmath
             if (p3 != answer)
             {
                 ++errorCount;
-                cerr << "[Polynomial][TC" << inOutTestCount << "][Error] error " << p3
+
+                ostringstream msg;
+                msg << "[Polynomial][TC" << inOutTestCount << "][Error] error " << p3
                     << " doesn't coincide with " <<  answer << endl;
+
+                auto errorMsg = msg.view();
+                cerr << errorMsg;
+
+                outErrorMessages.emplace_back(errorMsg);
             }
         }
 
@@ -442,8 +475,15 @@ namespace hmath
             if (p2 != answer)
             {
                 ++errorCount;
-                cerr << "[Polynomial][TC" << inOutTestCount << "][Error] error " << p2
+
+                ostringstream msg;
+                msg << "[Polynomial][TC" << inOutTestCount << "][Error] error " << p2
                     << " doesn't coincide with " <<  answer << endl;
+
+                auto errorMsg = msg.view();
+                cerr << errorMsg;
+
+                outErrorMessages.emplace_back(errorMsg);
             }
         }
 
@@ -462,8 +502,15 @@ namespace hmath
             if (dp != answer)
             {
                 ++errorCount;
-                cerr << "[Polynomial][TC" << inOutTestCount << "][Error] error " << dp
+
+                ostringstream msg;
+                msg << "[Polynomial][TC" << inOutTestCount << "][Error] error " << dp
                     << " doesn't coincide with " <<  answer << endl;
+
+                auto errorMsg = msg.view();
+                cerr << errorMsg;
+
+                outErrorMessages.emplace_back(errorMsg);
             }
         }
 
@@ -482,8 +529,15 @@ namespace hmath
             if (integral != answer)
             {
                 ++errorCount;
-                cerr << "[Polynomial][TC" << inOutTestCount << "][Error] error " << integral
+
+                ostringstream msg;
+                msg << "[Polynomial][TC" << inOutTestCount << "][Error] error " << integral
                     << " doesn't coincide with " <<  answer << endl;
+
+                auto errorMsg = msg.view();
+                cerr << errorMsg;
+
+                outErrorMessages.emplace_back(errorMsg);
             }
         }
 
